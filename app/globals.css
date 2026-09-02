@@ -1,26 +1,202 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-success: var(--v-success-ink);
+  --color-success-bg: var(--v-success-bg);
+  --color-success-dot: var(--v-success-dot);
+  --color-warn: var(--v-warn-ink);
+  --color-warn-bg: var(--v-warn-bg);
+  --color-warn-dot: var(--v-warn-dot);
+  --color-danger: var(--v-danger-ink);
+  --color-danger-bg: var(--v-danger-bg);
+  --color-danger-dot: var(--v-danger-dot);
+  --color-info: var(--v-info-ink);
+  --color-info-bg: var(--v-info-bg);
+  --color-info-dot: var(--v-info-dot);
+  --color-draft: var(--v-draft-ink);
+  --color-draft-bg: var(--v-draft-bg);
+  --color-draft-dot: var(--v-draft-dot);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* Verafi brand tokens — see verafi_admin_style_guide.html */
+  --v-forest-900: #0d2018;
+  --v-forest-800: #1a3a2a;
+  --v-forest-600: #2a6a40;
+  --v-green-500: #3d7a55;
+  --v-mint-400: #4fd1a5;
+  --v-bg: #f4f7f4;
+  --v-surface: #ffffff;
+  --v-surface-2: #f8faf8;
+  --v-border: #e8eee8;
+  --v-border-2: #d8e4d8;
+  --v-muted: #a8baa8;
+  --v-text-soft: #6b8070;
+  --v-text-body: #4a5a50;
+  --v-text-ink: #16241c;
+  --v-success-bg: #e8f4ec;
+  --v-success-ink: #2a6a40;
+  --v-success-dot: #2a7a40;
+  --v-warn-bg: #fef4e0;
+  --v-warn-ink: #8a6010;
+  --v-warn-dot: #e8a23c;
+  --v-danger-bg: #fef0ec;
+  --v-danger-ink: #b04030;
+  --v-danger-dot: #e07050;
+  --v-info-bg: #eaf1fb;
+  --v-info-ink: #2a5a9a;
+  --v-info-dot: #4a8ad8;
+  --v-draft-bg: #f0f0f4;
+  --v-draft-ink: #5a5a70;
+  --v-draft-dot: #9494b0;
+
+  --background: var(--v-bg);
+  --foreground: var(--v-text-ink);
+  --card: var(--v-surface);
+  --card-foreground: var(--v-text-ink);
+  --popover: var(--v-surface);
+  --popover-foreground: var(--v-text-ink);
+  --primary: var(--v-forest-800);
+  --primary-foreground: #ffffff;
+  --secondary: var(--v-surface-2);
+  --secondary-foreground: var(--v-forest-800);
+  --muted: var(--v-surface-2);
+  --muted-foreground: var(--v-text-soft);
+  --accent: var(--v-surface-2);
+  --accent-foreground: var(--v-text-ink);
+  --destructive: var(--v-danger-dot);
+  --border: var(--v-border);
+  --input: var(--v-border-2);
+  --ring: var(--v-forest-800);
+  --chart-1: var(--v-mint-400);
+  --chart-2: var(--v-info-dot);
+  --chart-3: var(--v-warn-dot);
+  --chart-4: var(--v-danger-dot);
+  --chart-5: var(--v-draft-dot);
+  /* Style guide v2: every button, card, input, badge, and panel is sharp-cornered.
+     Circles (toggles, status dots, step badges) are the only exception, and those
+     use rounded-full directly rather than this token. */
+  --radius: 0px;
+  --sidebar: var(--v-forest-800);
+  --sidebar-foreground: rgba(255, 255, 255, 0.82);
+  --sidebar-primary: rgba(255, 255, 255, 0.1);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: var(--v-mint-400);
+}
+
+.dark {
+  --v-bg: #0f1a14;
+  --v-surface: #16241c;
+  --v-surface-2: #1a2b21;
+  --v-border: #26382d;
+  --v-border-2: #33473a;
+  --v-muted: #4a5a50;
+  --v-text-soft: #8fa896;
+  --v-text-body: #cdd8d0;
+  --v-text-ink: #f4f7f4;
+  /* Style guide gives light-mode semantic colors only; these dark equivalents
+     follow this file's existing convention (dot stays vivid, bg becomes a low-
+     opacity tint of it, ink becomes a lightened readable-on-dark version). */
+  --v-success-bg: rgba(42, 122, 64, 0.18);
+  --v-success-ink: #6fcb8d;
+  --v-warn-bg: rgba(232, 162, 60, 0.16);
+  --v-warn-ink: #f0c177;
+  --v-danger-bg: rgba(224, 112, 80, 0.16);
+  --v-danger-ink: #f0a085;
+  --v-info-bg: rgba(74, 138, 216, 0.16);
+  --v-info-ink: #8fc0f0;
+  --v-draft-bg: rgba(148, 148, 176, 0.18);
+  --v-draft-ink: #c4c4da;
+
+  --background: var(--v-bg);
+  --foreground: var(--v-text-ink);
+  --card: var(--v-surface);
+  --card-foreground: var(--v-text-ink);
+  --popover: var(--v-surface);
+  --popover-foreground: var(--v-text-ink);
+  --primary: var(--v-mint-400);
+  --primary-foreground: var(--v-forest-900);
+  --secondary: var(--v-surface-2);
+  --secondary-foreground: var(--v-text-ink);
+  --muted: var(--v-surface-2);
+  --muted-foreground: var(--v-text-soft);
+  --accent: var(--v-surface-2);
+  --accent-foreground: var(--v-text-ink);
+  --destructive: var(--v-danger-dot);
+  --border: var(--v-border);
+  --input: var(--v-border-2);
+  --ring: var(--v-mint-400);
+  --chart-1: var(--v-mint-400);
+  --chart-2: var(--v-info-dot);
+  --chart-3: var(--v-warn-dot);
+  --chart-4: var(--v-danger-dot);
+  --chart-5: var(--v-draft-dot);
+  --sidebar: var(--v-forest-900);
+  --sidebar-foreground: rgba(255, 255, 255, 0.82);
+  --sidebar-primary: rgba(255, 255, 255, 0.1);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: var(--v-mint-400);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }

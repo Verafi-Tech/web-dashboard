@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verafi Admin — Web Dashboard Style Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* ===== CORE BRAND (inherited from mobile app) ===== */
+    --v-forest-900: #0D2018;
+    --v-forest-800: #1A3A2A;   /* primary brand / sidebar / primary buttons */
+    --v-forest-600: #2A6A40;
+    --v-green-500:  #3D7A55;   /* secondary actions, active states, links */
+    --v-mint-400:   #4FD1A5;   /* brand accent — use sparingly, signature moments only */
+
+    /* ===== NEUTRALS ===== */
+    --v-bg:         #F4F7F4;   /* app canvas */
+    --v-surface:    #FFFFFF;   /* cards, panels, table rows */
+    --v-surface-2:  #F8FAF8;   /* subtle recessed surface, hover rows */
+    --v-border:     #E8EEE8;
+    --v-border-2:   #D8E4D8;   /* input borders */
+    --v-muted:      #A8BAA8;   /* placeholders, disabled */
+    --v-text-soft:  #6B8070;   /* secondary text */
+    --v-text-body:  #4A5A50;   /* body copy on light */
+    --v-text-ink:   #16241C;   /* headings, primary text */
+
+    /* ===== SEMANTIC ===== */
+    --v-success-bg: #E8F4EC;  --v-success-ink: #2A6A40;  --v-success-dot:#2A7A40;
+    --v-warn-bg:    #FEF4E0;  --v-warn-ink:    #8A6010;  --v-warn-dot:   #E8A23C;
+    --v-danger-bg:  #FEF0EC;  --v-danger-ink:  #B04030;  --v-danger-dot: #E07050;
+    --v-info-bg:    #EAF1FB;  --v-info-ink:    #2A5A9A;  --v-info-dot:   #4A8AD8;
+    --v-draft-bg:   #F0F0F4;  --v-draft-ink:   #5A5A70;  --v-draft-dot:  #9494B0;
+
+    /* ===== TYPE ===== */
+    --f-ui:   'Barlow', -apple-system, 'Segoe UI', sans-serif;
+    --f-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+    /* ===== RADIUS / SHADOW =====
+       Sharp-corner variant: every button, card, input, badge, and panel
+       is squared off (0px) instead of the mobile app's rounded language. */
+    --r-sm: 0px; --r-md: 0px; --r-lg: 0px; --r-xl: 0px;
+    --sh-sm: 0 1px 2px rgba(16,40,28,0.06);
+    --sh-md: 0 4px 16px rgba(16,40,28,0.08);
+    --sh-lg: 0 12px 32px rgba(16,40,28,0.14);
+  }
+
+  * , *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--f-ui);
+    background: var(--v-bg);
+    color: var(--v-text-ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  code, .mono { font-family: var(--f-mono); }
+
+  a { color: var(--v-green-500); }
+
+  /* ===================== DOC SHELL ===================== */
+  .doc-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+  .doc-nav {
+    background: var(--v-forest-800); color: rgba(255,255,255,0.82);
+    padding: 28px 18px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .doc-nav-brand { display:flex; align-items:center; gap:10px; margin-bottom: 26px; }
+  .doc-nav-mark { width: 30px; height: 30px; border-radius: 0; background: var(--v-mint-400); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color: var(--v-forest-800); flex-shrink:0; }
+  .doc-nav-brand-text { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.2px; }
+  .doc-nav-brand-sub { font-size: 10px; color: rgba(255,255,255,0.5); margin-top:1px; }
+  .doc-nav-group { margin-bottom: 18px; }
+  .doc-nav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.38); padding: 0 10px; margin-bottom: 6px; }
+  .doc-nav a { display:block; padding: 7px 10px; border-radius: 0; font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.72); text-decoration:none; }
+  .doc-nav a:hover { background: rgba(255,255,255,0.06); color:#fff; }
+
+  .doc-main { padding: 48px 56px 120px; max-width: 1180px; }
+  .doc-hero { margin-bottom: 44px; }
+  .doc-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--v-green-500); margin-bottom: 10px; }
+  .doc-hero h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.6px; color: var(--v-text-ink); }
+  .doc-hero p { font-size: 14.5px; color: var(--v-text-soft); margin-top: 10px; max-width: 640px; }
+
+  section.doc-section { margin-bottom: 56px; padding-top: 8px; }
+  .doc-section h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 6px; }
+  .doc-section > p.doc-desc { font-size: 13.5px; color: var(--v-text-soft); margin-bottom: 22px; max-width: 680px; }
+  h3.doc-sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--v-text-soft); margin: 26px 0 12px; }
+
+  .card-wrap { background: var(--v-surface); border: 1px solid var(--v-border); border-radius: var(--r-lg); padding: 22px; box-shadow: var(--sh-sm); }
+
+  /* ===================== COLOR SWATCHES ===================== */
+  .swatch-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 12px; }
+  .swatch { border-radius: var(--r-md); overflow:hidden; border:1px solid var(--v-border); background:var(--v-surface); }
+  .swatch-color { height: 64px; }
+  .swatch-meta { padding: 10px 12px; }
+  .swatch-name { font-size: 12px; font-weight: 700; }
+  .swatch-hex { font-size: 11px; font-family: var(--f-mono); color: var(--v-text-soft); margin-top:2px; }
+  .swatch-use { font-size: 10.5px; color: var(--v-muted); margin-top: 4px; line-height:1.4; }
+
+  /* ===================== TYPE SCALE ===================== */
+  .type-row { display:flex; align-items:baseline; gap:18px; padding: 14px 0; border-bottom: 1px solid var(--v-border); }
+  .type-row:last-child { border-bottom:none; }
+  .type-meta { width: 160px; flex-shrink:0; font-size: 11px; font-family: var(--f-mono); color: var(--v-text-soft); }
+  .t-display { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+  .t-h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; }
+  .t-h2 { font-size: 17px; font-weight: 700; }
+  .t-body { font-size: 14px; font-weight: 500; color: var(--v-text-body); }
+  .t-small { font-size: 12px; font-weight: 600; color: var(--v-text-soft); }
+  .t-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--v-text-soft); }
+  .t-mono { font-family: var(--f-mono); font-size: 13px; color: var(--v-text-ink); background: var(--v-surface-2); padding: 2px 6px; border-radius: 0; }
+
+  /* ===================== BUTTONS ===================== */
+  .row-flex { display:flex; flex-wrap:wrap; gap: 12px; align-items:center; }
+  .btn { font-family: var(--f-ui); font-weight: 600; border-radius: var(--r-md); border: none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition: all .15s; }
+  .btn-md { padding: 10px 18px; font-size: 13.5px; }
+  .btn-sm { padding: 7px 13px; font-size: 12.5px; border-radius: var(--r-sm); }
+  .btn-primary { background: var(--v-forest-800); color:#fff; }
+  .btn-primary:hover { background: var(--v-forest-900); }
+  .btn-secondary { background: var(--v-surface); color: var(--v-forest-800); border: 1.5px solid var(--v-border-2); }
+  .btn-secondary:hover { border-color: var(--v-green-500); color: var(--v-green-500); }
+  .btn-ghost { background: transparent; color: var(--v-text-body); }
+  .btn-ghost:hover { background: var(--v-surface-2); }
+  .btn-danger { background: var(--v-danger-ink); color:#fff; }
+  .btn-danger:hover { background: #93332a; }
+  .btn-icon { width: 34px; height:34px; padding:0; justify-content:center; background: var(--v-surface-2); color: var(--v-text-body); border-radius: 0; }
+  .btn:disabled { opacity: 0.45; cursor:not-allowed; }
+
+  /* ===================== FORM ELEMENTS ===================== */
+  .form-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 620px; }
+  .f-group { display:flex; flex-direction:column; gap: 6px; }
+  .f-label { font-size: 12px; font-weight: 700; color: var(--v-text-body); display:flex; align-items:center; gap:5px; }
+  .f-label .req { width:5px; height:5px; border-radius:50%; background:#E05050; }
+  .f-input, .f-select, .f-textarea {
+    padding: 10px 13px; border: 1.5px solid var(--v-border-2); border-radius: var(--r-md);
+    font-size: 13.5px; font-family: var(--f-ui); background: var(--v-surface); color: var(--v-text-ink); outline:none;
+  }
+  .f-input:focus, .f-select:focus, .f-textarea:focus { border-color: var(--v-forest-800); box-shadow: 0 0 0 3px rgba(26,58,42,0.08); }
+  .f-input::placeholder { color: var(--v-muted); }
+  .f-select { appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236B8070' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 12px center; padding-right: 32px; }
+  .f-help { font-size: 10.5px; color: var(--v-muted); }
+  .f-mono-input { font-family: var(--f-mono); }
+
+  .toggle { width: 40px; height: 22px; border-radius: 20px; background: var(--v-border-2); position:relative; cursor:pointer; flex-shrink:0; transition: background .15s; }
+  .toggle::after { content:''; width:16px; height:16px; border-radius:50%; background:#fff; position:absolute; top:3px; left:3px; box-shadow: var(--sh-sm); transition: transform .15s; }
+  .toggle.on { background: var(--v-green-500); }
+  .toggle.on::after { transform: translateX(18px); }
+
+  .chk { width:18px; height:18px; border-radius:0; border: 1.5px solid var(--v-border-2); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .chk.on { background: var(--v-forest-800); border-color: var(--v-forest-800); color:#fff; font-size:11px; }
+
+  /* ===================== BADGES / STATUS PILLS ===================== */
+  .badge { display:inline-flex; align-items:center; gap:5px; font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 0; white-space:nowrap; }
+  .badge .bdot { width:6px; height:6px; border-radius:50%; }
+  .badge-success { background: var(--v-success-bg); color: var(--v-success-ink); } .badge-success .bdot{background:var(--v-success-dot);}
+  .badge-warn    { background: var(--v-warn-bg);    color: var(--v-warn-ink); }    .badge-warn .bdot{background:var(--v-warn-dot);}
+  .badge-danger  { background: var(--v-danger-bg);  color: var(--v-danger-ink); }  .badge-danger .bdot{background:var(--v-danger-dot);}
+  .badge-info    { background: var(--v-info-bg);    color: var(--v-info-ink); }    .badge-info .bdot{background:var(--v-info-dot);}
+  .badge-draft   { background: var(--v-draft-bg);   color: var(--v-draft-ink); }   .badge-draft .bdot{background:var(--v-draft-dot);}
+
+  /* Equation / parameter chip — signature element for methodology content */
+  .eq-chip { font-family: var(--f-mono); font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 0; background: var(--v-forest-800); color: var(--v-mint-400); letter-spacing: 0.2px; }
+  .eq-chip.outline { background: transparent; border: 1.5px solid var(--v-border-2); color: var(--v-text-soft); }
+  .eq-row { display:flex; flex-wrap:wrap; gap:6px; }
+
+  /* ===================== CARDS ===================== */
+  .stat-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat-card { background: var(--v-surface); border: 1px solid var(--v-border); border-radius: var(--r-lg); padding: 18px; }
+  .stat-num { font-size: 24px; font-weight: 800; color: var(--v-forest-800); }
+  .stat-lbl { font-size: 11px; color: var(--v-text-soft); margin-top: 4px; font-weight: 600; }
+  .stat-delta { font-size: 10.5px; font-weight: 700; margin-top: 8px; }
+  .stat-delta.up { color: var(--v-success-ink); } .stat-delta.down { color: var(--v-danger-ink); }
+
+  .meth-card { background: var(--v-surface); border: 1px solid var(--v-border); border-radius: var(--r-lg); padding: 18px; position:relative; overflow:hidden; }
+  .meth-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background: var(--v-green-500); }
+  .meth-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:10px; }
+  .meth-name { font-size: 14.5px; font-weight: 700; }
+  .meth-ver { font-size: 11px; font-family: var(--f-mono); color: var(--v-text-soft); margin-top: 2px; }
+  .meth-desc { font-size: 12px; color: var(--v-text-soft); margin: 10px 0 12px; line-height:1.5; }
+  .meth-foot { display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:12px; border-top:1px solid var(--v-border); font-size:11px; color: var(--v-muted); }
+
+  /* ===================== TABLE ===================== */
+  table.v-table { width:100%; border-collapse: collapse; font-size: 13px; }
+  .v-table thead th { text-align:left; font-size: 10.5px; font-weight: 700; text-transform:uppercase; letter-spacing:0.6px; color: var(--v-text-soft); padding: 10px 14px; border-bottom: 1.5px solid var(--v-border); background: var(--v-surface-2); }
+  .v-table thead th:first-child { border-radius: var(--r-md) 0 0 0; } .v-table thead th:last-child { border-radius: 0 var(--r-md) 0 0; }
+  .v-table tbody td { padding: 12px 14px; border-bottom: 1px solid var(--v-border); color: var(--v-text-ink); vertical-align:middle; }
+  .v-table tbody tr:hover { background: var(--v-surface-2); }
+  .v-table .cell-sub { font-size:11px; color: var(--v-text-soft); margin-top:2px; }
+  .row-actions { display:flex; gap:6px; opacity:0.85; }
+
+  /* ===================== NAV / SHELL PATTERN ===================== */
+  .app-frame { border:1px solid var(--v-border); border-radius: var(--r-lg); overflow:hidden; box-shadow: var(--sh-md); }
+  .app-frame-inner { display:grid; grid-template-columns: 220px 1fr; height: 380px; }
+  .app-sidebar { background: var(--v-forest-800); padding: 18px 12px; }
+  .app-sb-item { display:flex; align-items:center; gap:9px; padding: 9px 10px; border-radius:0; font-size:12.5px; font-weight:600; color: rgba(255,255,255,0.68); margin-bottom:2px; }
+  .app-sb-item.active { background: rgba(255,255,255,0.1); color:#fff; }
+  .app-topbar { background: var(--v-surface); border-bottom:1px solid var(--v-border); padding: 12px 20px; display:flex; align-items:center; justify-content:space-between; }
+  .app-content { background: var(--v-bg); padding: 18px 20px; flex:1; overflow:auto; }
+  .app-body { display:flex; flex-direction:column; }
+
+  /* ===================== ALERTS ===================== */
+  .alert { display:flex; gap:12px; padding: 13px 16px; border-radius: var(--r-md); font-size: 12.5px; border: 1px solid transparent; }
+  .alert-success { background: var(--v-success-bg); color: var(--v-success-ink); border-color: rgba(42,106,64,0.18); }
+  .alert-warn { background: var(--v-warn-bg); color: var(--v-warn-ink); border-color: rgba(138,96,16,0.18); }
+  .alert-danger { background: var(--v-danger-bg); color: var(--v-danger-ink); border-color: rgba(176,64,48,0.18); }
+  .alert-title { font-weight:700; margin-bottom:2px; }
+
+  /* ===================== WIZARD STEPS ===================== */
+  .wizard { display:flex; align-items:center; gap:0; }
+  .wz-step { display:flex; align-items:center; gap:8px; }
+  .wz-num { width: 26px; height:26px; border-radius:50%; background: var(--v-border); color: var(--v-text-soft); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .wz-step.done .wz-num { background: var(--v-success-dot); color:#fff; }
+  .wz-step.cur .wz-num { background: var(--v-forest-800); color:#fff; }
+  .wz-label { font-size:12px; font-weight:600; color: var(--v-text-soft); }
+  .wz-step.cur .wz-label { color: var(--v-text-ink); }
+  .wz-line { width: 44px; height:2px; background: var(--v-border); margin: 0 8px; }
+  .wz-line.done { background: var(--v-success-dot); }
+
+  /* ===================== MISC ===================== */
+  .legend-note { font-size: 11.5px; color: var(--v-text-soft); margin-top:14px; line-height:1.6; background: var(--v-surface-2); border:1px dashed var(--v-border-2); padding:12px 14px; border-radius: var(--r-md); }
+  .split-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 980px) {
+    .doc-shell { grid-template-columns: 1fr; }
+    .doc-nav { position: static; height:auto; }
+    .stat-grid { grid-template-columns: repeat(2,1fr); }
+    .split-2, .form-grid, .app-frame-inner { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-shell">
+
+  <!-- ============ SIDE NAV ============ -->
+  <nav class="doc-nav">
+    <div class="doc-nav-brand">
+      <div class="doc-nav-mark">V</div>
+      <div><div class="doc-nav-brand-text">Verafi Admin</div><div class="doc-nav-brand-sub">Style guide v1.0</div></div>
+    </div>
+    <div class="doc-nav-group">
+      <div class="doc-nav-label">Foundations</div>
+      <a href="#colors">Color</a>
+      <a href="#type">Typography</a>
+      <a href="#tokens">Radius &amp; elevation</a>
+    </div>
+    <div class="doc-nav-group">
+      <div class="doc-nav-label">Components</div>
+      <a href="#buttons">Buttons</a>
+      <a href="#forms">Form elements</a>
+      <a href="#badges">Badges &amp; status</a>
+      <a href="#eqchips">Equation chips</a>
+      <a href="#cards">Cards</a>
+      <a href="#table">Tables</a>
+      <a href="#alerts">Alerts</a>
+      <a href="#wizard">Wizard / steps</a>
+    </div>
+    <div class="doc-nav-group">
+      <div class="doc-nav-label">Structure</div>
+      <a href="#shell">App shell &amp; nav</a>
+      <a href="#methodology">Methodology manager</a>
+    </div>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main class="doc-main">
+
+    <div class="doc-hero">
+      <div class="doc-eyebrow">Internal reference · Web dashboard</div>
+      <h1>Super Admin Style Guide</h1>
+      <p>This extends the mobile field-app design language (forest green, mint accent, Inter) into the desktop admin surface — the console super admins use to manage methodologies, users, projects, and platform configuration. Same brand tokens, denser layout, more data per screen.</p>
+    </div>
+
+    <!-- ============ COLOR ============ -->
+    <section class="doc-section" id="colors">
+      <h2>Color</h2>
+      <p class="doc-desc">Carried directly from the mobile app palette so the two products feel like one system. Desktop adds two neutrals (canvas vs. surface) since admin screens stack more panels than the phone ever does.</p>
+
+      <h3 class="doc-sub">Brand</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#0D2018"></div><div class="swatch-meta"><div class="swatch-name">Forest 900</div><div class="swatch-hex">#0D2018</div><div class="swatch-use">Hover/active states on primary surfaces</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1A3A2A"></div><div class="swatch-meta"><div class="swatch-name">Forest 800</div><div class="swatch-hex">#1A3A2A</div><div class="swatch-use">Sidebar, primary buttons, headings on dark</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2A6A40"></div><div class="swatch-meta"><div class="swatch-name">Forest 600</div><div class="swatch-hex">#2A6A40</div><div class="swatch-use">Success text, avatar initials</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#3D7A55"></div><div class="swatch-meta"><div class="swatch-name">Green 500</div><div class="swatch-hex">#3D7A55</div><div class="swatch-use">Links, secondary actions, active nav</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#4FD1A5"></div><div class="swatch-meta"><div class="swatch-name">Mint 400</div><div class="swatch-hex">#4FD1A5</div><div class="swatch-use">Accent only — logo mark, one signature moment per screen. Never body text or large fills.</div></div></div>
+      </div>
+
+      <h3 class="doc-sub">Neutrals</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#F4F7F4;border-bottom:1px solid #eee"></div><div class="swatch-meta"><div class="swatch-name">Canvas</div><div class="swatch-hex">#F4F7F4</div><div class="swatch-use">App background behind panels</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FFFFFF;border-bottom:1px solid #eee"></div><div class="swatch-meta"><div class="swatch-name">Surface</div><div class="swatch-hex">#FFFFFF</div><div class="swatch-use">Cards, tables, modals</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F8FAF8;border-bottom:1px solid #eee"></div><div class="swatch-meta"><div class="swatch-name">Surface 2</div><div class="swatch-hex">#F8FAF8</div><div class="swatch-use">Table header, hover rows, code blocks</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E8EEE8"></div><div class="swatch-meta"><div class="swatch-name">Border</div><div class="swatch-hex">#E8EEE8</div><div class="swatch-use">Dividers, card borders</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#6B8070"></div><div class="swatch-meta"><div class="swatch-name">Text soft</div><div class="swatch-hex">#6B8070</div><div class="swatch-use">Secondary text, labels</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#16241C"></div><div class="swatch-meta"><div class="swatch-name">Text ink</div><div class="swatch-hex">#16241C</div><div class="swatch-use">Headings, primary text</div></div></div>
+      </div>
+
+      <h3 class="doc-sub">Semantic (status &amp; validation)</h3>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#2A7A40"></div><div class="swatch-meta"><div class="swatch-name">Success</div><div class="swatch-hex">#2A7A40 / #E8F4EC</div><div class="swatch-use">Active methodology, published, synced</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E8A23C"></div><div class="swatch-meta"><div class="swatch-name">Warning</div><div class="swatch-hex">#E8A23C / #FEF4E0</div><div class="swatch-use">Under review, pending approval</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E07050"></div><div class="swatch-meta"><div class="swatch-name">Danger</div><div class="swatch-hex">#E07050 / #FEF0EC</div><div class="swatch-use">Deprecated, validation errors, destructive</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#4A8AD8"></div><div class="swatch-meta"><div class="swatch-name">Info</div><div class="swatch-hex">#4A8AD8 / #EAF1FB</div><div class="swatch-use">System notices, version updates</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#9494B0"></div><div class="swatch-meta"><div class="swatch-name">Draft</div><div class="swatch-hex">#9494B0 / #F0F0F4</div><div class="swatch-use">Unpublished methodology, WIP</div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ TYPE ============ -->
+    <section class="doc-section" id="type">
+      <h2>Typography</h2>
+      <p class="doc-desc">Inter stays the UI face across mobile and web. Desktop adds a monospace face — the admin's job is precise, technical: equation IDs, methodology version strings, parameter codes. Mono signals "this value is exact and copyable."</p>
+      <div class="card-wrap">
+        <div class="type-row"><div class="type-meta">display / 30 / 800</div><div class="t-display">Methodology Manager</div></div>
+        <div class="type-row"><div class="type-meta">h1 / 22 / 800</div><div class="t-h1">Add new methodology</div></div>
+        <div class="type-row"><div class="type-meta">h2 / 17 / 700</div><div class="t-h2">Calculation parameters</div></div>
+        <div class="type-row"><div class="type-meta">body / 14 / 500</div><div class="t-body">Super admins can enable, version, and retire monitoring methodologies without engineering involvement.</div></div>
+        <div class="type-row"><div class="type-meta">small / 12 / 600</div><div class="t-small">Last edited 3 hours ago by S. Adewale</div></div>
+        <div class="type-row"><div class="type-meta">label / 11 / 700 upper</div><div class="t-label">Methodology status</div></div>
+        <div class="type-row"><div class="type-meta">mono / 13</div><span class="t-mono">VM0050-v1.0 · CC_VM0050-v1.0</span></div>
+      </div>
+    </section>
+
+    <!-- ============ TOKENS ============ -->
+    <section class="doc-section" id="tokens">
+      <h2>Radius &amp; elevation</h2>
+      <p class="doc-desc">Sharp corners, deliberately: every button, card, input, badge, and panel on the admin dashboard is squared off. This is the one point of departure from the mobile app's rounded language — chosen for the admin surface to read as denser, more technical, more "control panel" than the field app.</p>
+      <div class="row-flex">
+        <div style="width:90px;height:60px;background:#fff;border:1px solid var(--v-border);border-radius:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--v-text-soft)">radius · 0px</div>
+        <div style="width:120px;height:60px;background:#fff;box-shadow:var(--sh-sm);border-radius:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--v-text-soft)">shadow sm</div>
+        <div style="width:120px;height:60px;background:#fff;box-shadow:var(--sh-md);border-radius:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--v-text-soft)">shadow md</div>
+        <div style="width:120px;height:60px;background:#fff;box-shadow:var(--sh-lg);border-radius:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--v-text-soft)">shadow lg (modals)</div>
+      </div>
+      <div class="legend-note">Circles are the only exception: toggle switches, status dots, and step-number badges stay round because they're functional indicators, not boxes.</div>
+    </section>
+
+    <!-- ============ BUTTONS ============ -->
+    <section class="doc-section" id="buttons">
+      <h2>Buttons</h2>
+      <p class="doc-desc">Primary is reserved for the one committing action per screen (Publish methodology, Save changes). Never more than one primary button visible at once.</p>
+      <div class="card-wrap row-flex">
+        <button class="btn btn-primary btn-md">Publish methodology</button>
+        <button class="btn btn-secondary btn-md">Save as draft</button>
+        <button class="btn btn-ghost btn-md">Cancel</button>
+        <button class="btn btn-danger btn-md">Deprecate</button>
+        <button class="btn btn-secondary btn-sm">Duplicate</button>
+        <button class="btn btn-icon" title="More options">⋯</button>
+        <button class="btn btn-primary btn-md" disabled>Publish methodology</button>
+      </div>
+    </section>
+
+    <!-- ============ FORMS ============ -->
+    <section class="doc-section" id="forms">
+      <h2>Form elements</h2>
+      <p class="doc-desc">Same input shape as mobile (10px radius, 1.5px border, forest-green focus ring) so the visual language never breaks across surfaces.</p>
+      <div class="card-wrap">
+        <div class="form-grid">
+          <div class="f-group">
+            <label class="f-label"><span class="req"></span>Methodology name</label>
+            <input class="f-input" placeholder="e.g. Improved Cookstoves — VM0050">
+          </div>
+          <div class="f-group">
+            <label class="f-label"><span class="req"></span>Methodology code</label>
+            <input class="f-input f-mono-input" placeholder="VM0050-v1.0">
+            <div class="f-help">Must match the registry-published version string exactly.</div>
+          </div>
+          <div class="f-group">
+            <label class="f-label">Registry</label>
+            <select class="f-select"><option>Verra</option><option>Gold Standard</option><option>ACR</option></select>
+          </div>
+          <div class="f-group">
+            <label class="f-label">Category</label>
+            <select class="f-select"><option>Household devices</option><option>Fuel switch</option><option>Efficiency</option></select>
+          </div>
+          <div class="f-group" style="grid-column:1/-1;">
+            <label class="f-label">Description</label>
+            <textarea class="f-textarea" rows="3" placeholder="Short description shown to field agents when selecting a methodology…"></textarea>
+          </div>
+        </div>
+        <div class="row-flex" style="margin-top:20px;">
+          <div class="row-flex"><div class="toggle on"></div><span class="t-small">Available on mobile</span></div>
+          <div class="row-flex"><div class="toggle"></div><span class="t-small">Requires review before publish</span></div>
+          <div class="row-flex"><div class="chk on">✓</div><span class="t-small">Notify design partners on publish</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BADGES ============ -->
+    <section class="doc-section" id="badges">
+      <h2>Badges &amp; status</h2>
+      <p class="doc-desc">One status vocabulary reused everywhere — methodologies, sync queues, users, submissions.</p>
+      <div class="card-wrap row-flex">
+        <span class="badge badge-success"><span class="bdot"></span>Active</span>
+        <span class="badge badge-warn"><span class="bdot"></span>Under review</span>
+        <span class="badge badge-draft"><span class="bdot"></span>Draft</span>
+        <span class="badge badge-danger"><span class="bdot"></span>Deprecated</span>
+        <span class="badge badge-info"><span class="bdot"></span>New version available</span>
+      </div>
+    </section>
+
+    <!-- ============ EQUATION CHIPS ============ -->
+    <section class="doc-section" id="eqchips">
+      <h2>Equation &amp; parameter chips</h2>
+      <p class="doc-desc">The signature component for this product: a dark mono chip in mint-on-forest, used only to reference equations, parameters, or version strings — never as a generic tag. It signals "this is a precise, citable value from the methodology," distinct from a status badge.</p>
+      <div class="card-wrap">
+        <div class="t-label" style="margin-bottom:8px;">Equations covered — VM0050-v1.0</div>
+        <div class="eq-row">
+          <span class="eq-chip">Eq. 1 — ER</span>
+          <span class="eq-chip">Eq. 3 — B_y</span>
+          <span class="eq-chip">Eq. 5 — NCB_PJ,y</span>
+          <span class="eq-chip">Eq. 7 — f_NRB,y</span>
+          <span class="eq-chip">Eq. 9 — SEC_y</span>
+          <span class="eq-chip outline">+ 6 more</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CARDS ============ -->
+    <section class="doc-section" id="cards">
+      <h2>Cards</h2>
+      <p class="doc-desc">Stat cards for dashboard summaries; methodology cards mirror the mobile project-card pattern (left accent bar, top badge) for visual continuity.</p>
+
+      <h3 class="doc-sub">Stat cards</h3>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num">6</div><div class="stat-lbl">Active methodologies</div><div class="stat-delta up">▲ 1 this month</div></div>
+        <div class="stat-card"><div class="stat-num">2</div><div class="stat-lbl">Pending review</div></div>
+        <div class="stat-card"><div class="stat-num">18</div><div class="stat-lbl">Admin users</div></div>
+        <div class="stat-card"><div class="stat-num">412</div><div class="stat-lbl">Reports generated</div><div class="stat-delta up">▲ 12% vs last month</div></div>
+      </div>
+
+      <h3 class="doc-sub">Methodology card</h3>
+      <div class="split-2">
+        <div class="meth-card">
+          <div class="meth-top">
+            <div><div class="meth-name">Improved Cookstoves</div><div class="meth-ver">VM0050-v1.0 · CC_VM0050-v1.0</div></div>
+            <span class="badge badge-success"><span class="bdot"></span>Active</span>
+          </div>
+          <div class="meth-desc">Survey-based monitoring for biomass cookstove distribution projects. All 11 core equations implemented.</div>
+          <div class="eq-row"><span class="eq-chip">11 equations</span><span class="eq-chip outline">Verra</span></div>
+          <div class="meth-foot"><span>Used by 2 projects</span><span>Edited 3d ago</span></div>
+        </div>
+        <div class="meth-card" style="opacity:0.9;">
+          <div class="meth-top">
+            <div><div class="meth-name">TPDDTEC</div><div class="meth-ver">Gold Standard — draft</div></div>
+            <span class="badge badge-draft"><span class="bdot"></span>Draft</span>
+          </div>
+          <div class="meth-desc">Technologies and Practices to Displace Decentralized Thermal Energy Consumption. Phase 2 build in progress.</div>
+          <div class="eq-row"><span class="eq-chip outline">Not yet configured</span></div>
+          <div class="meth-foot"><span>Used by 0 projects</span><span>Edited 2w ago</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TABLE ============ -->
+    <section class="doc-section" id="table">
+      <h2>Tables</h2>
+      <p class="doc-desc">The primary way super admins scan lists — methodologies, users, projects, audit logs. Row hover, right-aligned actions, mono for codes.</p>
+      <div class="card-wrap" style="padding:0;overflow:hidden;">
+        <table class="v-table">
+          <thead><tr><th>Methodology</th><th>Version</th><th>Registry</th><th>Status</th><th>Projects</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Improved Cookstoves</strong><div class="cell-sub">Household devices</div></td>
+              <td class="mono">VM0050-v1.0</td>
+              <td>Verra</td>
+              <td><span class="badge badge-success"><span class="bdot"></span>Active</span></td>
+              <td>2</td>
+              <td><div class="row-actions"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-icon" style="width:28px;height:28px;">⋯</button></div></td>
+            </tr>
+            <tr>
+              <td><strong>TPDDTEC</strong><div class="cell-sub">Fuel switch</div></td>
+              <td class="mono">GS-draft</td>
+              <td>Gold Standard</td>
+              <td><span class="badge badge-draft"><span class="bdot"></span>Draft</span></td>
+              <td>0</td>
+              <td><div class="row-actions"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-icon" style="width:28px;height:28px;">⋯</button></div></td>
+            </tr>
+            <tr>
+              <td><strong>VM0050 v2.0</strong><div class="cell-sub">Household devices — pending consultation close</div></td>
+              <td class="mono">VM0050-v2.0</td>
+              <td>Verra</td>
+              <td><span class="badge badge-warn"><span class="bdot"></span>Under review</span></td>
+              <td>—</td>
+              <td><div class="row-actions"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-icon" style="width:28px;height:28px;">⋯</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ ALERTS ============ -->
+    <section class="doc-section" id="alerts">
+      <h2>Alerts</h2>
+      <div class="card-wrap" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="alert alert-success"><span>✓</span><div><div class="alert-title">Methodology published</div>Field agents on mobile will see this methodology after their next sync.</div></div>
+        <div class="alert alert-warn"><span>!</span><div><div class="alert-title">Unsaved changes</div>Two calculation parameters were edited but not published.</div></div>
+        <div class="alert alert-danger"><span>✕</span><div><div class="alert-title">Cannot deprecate</div>This methodology is in use by 2 active projects. Reassign them first.</div></div>
+      </div>
+    </section>
+
+    <!-- ============ WIZARD ============ -->
+    <section class="doc-section" id="wizard">
+      <h2>Wizard / step indicator</h2>
+      <p class="doc-desc">Used for the "Add new methodology" flow — mirrors the step-bar pattern from the mobile survey screen.</p>
+      <div class="card-wrap">
+        <div class="wizard">
+          <div class="wz-step done"><div class="wz-num">✓</div><div class="wz-label">Basics</div></div>
+          <div class="wz-line done"></div>
+          <div class="wz-step cur"><div class="wz-num">2</div><div class="wz-label">Equations &amp; parameters</div></div>
+          <div class="wz-line"></div>
+          <div class="wz-step"><div class="wz-num">3</div><div class="wz-label">Mobile survey mapping</div></div>
+          <div class="wz-line"></div>
+          <div class="wz-step"><div class="wz-num">4</div><div class="wz-label">Review &amp; publish</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ APP SHELL ============ -->
+    <section class="doc-section" id="shell">
+      <h2>App shell &amp; navigation</h2>
+      <p class="doc-desc">Dark forest-green sidebar (same hex as the mobile phone shell) anchors the product identity; content area stays on the light canvas so dense tables and forms stay legible.</p>
+      <div class="app-frame">
+        <div class="app-frame-inner">
+          <div class="app-sidebar">
+            <div style="color:#fff;font-weight:700;font-size:13px;margin-bottom:18px;padding-left:10px;">Verafi Admin</div>
+            <div class="app-sb-item active">📊 Dashboard</div>
+            <div class="app-sb-item">🧮 Methodologies</div>
+            <div class="app-sb-item">📁 Projects</div>
+            <div class="app-sb-item">👥 Users &amp; roles</div>
+            <div class="app-sb-item">🏢 Design partners</div>
+            <div class="app-sb-item">📄 Reports</div>
+            <div class="app-sb-item">⚙️ Platform settings</div>
+          </div>
+          <div class="app-body">
+            <div class="app-topbar">
+              <div style="font-weight:700;font-size:14px;">Methodologies</div>
+              <button class="btn btn-primary btn-sm">+ Add methodology</button>
+            </div>
+            <div class="app-content">
+              <div class="t-small">Content area inherits the tables, cards, and badges defined above.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="legend-note">Sidebar sections shown are illustrative. Suggested top-level areas for a super admin: <strong>Dashboard, Methodologies, Projects, Users &amp; Roles, Design Partners, Reports, Platform Settings.</strong> Methodology management is the flagship section since it's the reason this dashboard exists.</div>
+    </section>
+
+    <!-- ============ METHODOLOGY MANAGER PATTERN ============ -->
+    <section class="doc-section" id="methodology">
+      <h2>Methodology manager — composition guide</h2>
+      <p class="doc-desc">How the components above assemble into the actual admin flow.</p>
+      <div class="card-wrap" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="t-small"><strong>List view</strong> — Table component, filterable by registry/status, "+ Add methodology" primary button top-right.</div>
+        <div class="t-small"><strong>Detail view</strong> — Methodology card header (name, version, status badge, equation chips) + tabbed sections for Parameters, Equations, Mobile survey mapping, Version history.</div>
+        <div class="t-small"><strong>Create/edit flow</strong> — Wizard component (Basics → Equations &amp; parameters → Mobile survey mapping → Review &amp; publish). Save as draft available at every step; Publish only enabled once required fields validate.</div>
+        <div class="t-small"><strong>Publish confirmation</strong> — Modal (shadow-lg, radius-lg) restating what changes and which mobile app versions/projects are affected before the irreversible action.</div>
+        <div class="t-small"><strong>Deprecation</strong> — Danger button, blocked with an alert-danger if active projects still reference the methodology (see Alerts above).</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
