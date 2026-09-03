@@ -6,10 +6,12 @@ export function useAuditLogs(
   filters: AuditLogFilters,
   limit: number,
   offset: number,
-  organisationId?: string
+  organisationId?: string,
+  enabled: boolean = true
 ) {
   return useQuery({
     queryKey: ["audit-logs", filters, limit, offset, organisationId],
     queryFn: () => listAuditLogs(filters, limit, offset, organisationId),
+    enabled,
   });
 }

@@ -94,7 +94,7 @@ export function CreateProjectDialog({
             </DialogDescription>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="mt-4 flex flex-col gap-3"
+              className="mt-4 flex max-h-[70vh] flex-col gap-3 overflow-y-auto pr-1"
               noValidate
             >
               <div className="flex flex-col gap-1.5">
