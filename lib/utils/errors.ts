@@ -35,6 +35,26 @@ export function getErrorMessage(error: unknown): string {
     return message;
   }
 
+  // A third envelope this backend uses for request validation failures —
+  // {error: {code: "REQUEST_VALIDATION_ERROR", errors: [{field, issue}]}} —
+  // distinct from both the {error: {message}} envelope above and FastAPI's
+  // raw {detail} shape below. Each field's path comes back as "body →
+  // some_field"; strip the "body → " prefix since it's plumbing, not
+  // something a user typed.
+  const validationErrors = error.response.data?.error?.errors;
+  if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+    const parts = validationErrors
+      .map((e) => {
+        if (!e || typeof e.issue !== "string") return null;
+        const field = typeof e.field === "string" ? e.field.replace(/^body\s*→\s*/, "") : null;
+        return field ? `${field}: ${e.issue}` : e.issue;
+      })
+      .filter((part): part is string => part !== null);
+    if (parts.length > 0) {
+      return parts.join("; ");
+    }
+  }
+
   // FastAPI's default (unwrapped) validation error shape — distinct from
   // this backend's usual {error: {message}} envelope, but real endpoints do
   // sometimes fall through to it (e.g. raw pydantic validation failures).

@@ -60,8 +60,8 @@ What's still genuinely new: the backend (see [§6](#6-full-backend-api-surface))
 | Audit Logs (filterable + server-paginated; expandable rows for changes/before/after snapshots — admin-only) | ✅ Done (Phase 9, 2026-09-01) | `components/audit/*`, `lib/api/audit.ts`, `app/dashboard/audit/page.tsx` |
 | Settings (User Settings — every role; Storage + Data retention — admin-only, the latter write-only by backend limitation) | ✅ Done (Phase 10, 2026-09-01) | `app/dashboard/settings/*`, `components/settings/*` |
 | Users (list, invite w/ temp password, profile — admin-only section) | ✅ Done | `app/dashboard/users/*`, `components/users/*` |
-| Dashboard stats (active projects, org count, user count admin-only) | ✅ Done | `components/dashboard/DashboardStats.tsx` |
-| Test infra (Jest + RTL) | ✅ 42 suites / 176 tests green | see [Gotcha #1](#1-jest-fails-with-module-jestsetupts-was-not-found) |
+| Dashboard stats (active projects, org count, user count admin-only, reports generated) | ✅ Done | `components/dashboard/DashboardStats.tsx` |
+| Test infra (Jest + RTL) | ✅ 42 suites / 180 tests green | see [Gotcha #1](#1-jest-fails-with-module-jestsetupts-was-not-found) |
 
 ### 2026-08-31: new backend fields incorporated
 
@@ -87,6 +87,9 @@ Offline Sync ([Phase 8](#8-phase-by-phase-roadmap)) — resolved 2026-09-01: han
 - **Two calculations-list bugs found post-ship** (2026-08-30, while investigating "calculations aren't showing up" for a real household): `GET /projects/{id}/calculations` actually returns `{calculations: [...], total_count, limit, offset}` (guessed `{data}`/`{items}` initially, never matched), and each row is a flat `CalculationSummary`, not the nested `CalculationResponse` the create/detail endpoints return. Both fixed — see the Phase 6 writeup below for full detail. Also added a `superRefine` catching the backend's undocumented "survey-based monitoring requires `customer_support_level`" rule (CC Clarification 2) with a clear inline error instead of a raw 422.
 - **Calculation result numbers overflowed their cards** — the backend returns full-precision decimal strings (e.g. `1.3831091039999999`). Fixed 2026-08-31 with `lib/utils/format.ts#formatDecimal`, a display-only rounding helper (never touches the value sent to/from the API); every rounded value keeps the exact original in a `title` tooltip.
 - **Breadcrumb linked to two URLs that 404** — `.../projects/{id}/households` and `.../projects/{id}/calculations` are tabs inside the project page, not standalone routes, but the breadcrumb linked their intermediate segments anyway. Fixed 2026-08-31: `Breadcrumb.tsx` now keeps a `NON_NAVIGABLE_SEGMENTS` set (currently `households`, `calculations`) and renders those as plain text instead of a `Link`.
+- **Report generation actually requires an existing Calculation for the project** — the Phase 7 writeup originally claimed independence from Calculations; that was wrong (see the Phase 7/§6 correction notes). Fixed 2026-09-02: `ReportsTab.tsx` now disables "Generate report" with an inline explanation when the project has no calculation yet.
+- **The "Reports generated" dashboard stat was a hardcoded placeholder** (`<StatsCard label="Reports generated" value="—" />`, never wired to real data) since whenever it was first added — invisible as a bug because it looked like a deliberate "not built yet" placeholder rather than a stuck value. Found 2026-09-02 when a user correctly pointed out it never updates after generating real reports (there were already 10 reports across the org's projects at the time). Fixed with `hooks/useReport.ts#useReportsCount` — there's no org-wide reports endpoint, so it fans out one `GET /projects/{id}/reports` per project via `useQueries` and sums the counts (sharing cache entries with any project's own Reports tab via the same `["reports", projectId]` query key).
+- **`getErrorMessage` didn't recognize a third backend error envelope**, so a real validation failure recording a survey showed only the generic "An error occurred. Please try again." Found 2026-09-03 by reproducing the failure directly against the live backend. This backend actually uses three distinct error shapes depending on the failure type: `{error: {message}}` (handled), FastAPI's raw `{detail}` (handled), and — newly found — `{error: {code: "REQUEST_VALIDATION_ERROR", errors: [{field, issue}]}}` for request validation failures, which fell through both existing checks straight to the generic fallback. Fixed in `lib/utils/errors.ts` — joins every `{field, issue}` pair into one readable message, stripping the `"body → "` path prefix. While reproducing this, also found and fixed two real validation gaps in `SurveyFormDialog.tsx`: `meals_on_project_stove`/`meals_on_baseline_stove` are typed `integer` server-side but the form accepted decimals (422'd with "Input should be a valid integer..."), and the backend rejects a future `survey_date` outright ("Survey date cannot be in the future") with no matching client-side check. Both now validate client-side before hitting the network — `optionalNonNegativeIntegerString` (new helper in `lib/utils/validation.ts`) and a `survey_date` `refine` respectively.
 
 ### Known issues — open
 
@@ -156,6 +159,10 @@ If a fresh `npm install` leaves native bindings broken again, check:
 npm install-scripts ls
 ```
 npm's install-scripts allowlist (npm 11+) can silently skip a package's `postinstall` (this is what caused the Jest binding to never regenerate correctly the first time). Approve with `npm install-scripts approve <pkg>`, then `npm rebuild <pkg>`.
+
+### 5. `.env.local` can point at production, not local dev — check it before assuming either
+
+`NEXT_PUBLIC_API_URL` was switched at some point from `http://localhost:8000/api/v1` to a Railway production URL (`https://mvp-server-production-de2d.up.railway.app/api/v1`, commented-out local URL left in place below it). **These are two different databases with different data** — an admin login that works on one won't have the same organisations/projects/data as the other, and a bug reproduced against one may not exist on the other (see the Phase 7 report-generation bug below, first suspected as a regression before realizing the live-verification testing throughout Phases 6–10 had all been against local dev, not this production deployment). **Always read `.env.local`'s actual uncommented `NEXT_PUBLIC_API_URL` before doing any "verify against the live backend" work** — don't assume it's still local dev just because it was earlier in the session.
 
 ---
 
@@ -248,7 +255,9 @@ Confirmed with the user 2026-08-29: same rule as Households, `canManageHousehold
 
 ### Reports (`/api/v1/reports`, `/projects/{id}/reports`) — ✅ wired (Phase 7)
 
-Generate → list → view (HTML/PDF) → approve (VVB) workflow. No role restriction was documented on generate or approve — resolved with the user 2026-09-01: both are admin-only (`canManageReports`), same class of action as Calculations (VVB-facing compliance artifact); everyone can still view. Report generation is independent of Phase 6 Calculations — it computes `usage_rate`/`tco2e_reduced` itself from Household/Survey data for a given `period_start`/`period_end`, not by referencing a Calculation record.
+Generate → list → view (HTML/PDF) → approve (VVB) workflow. No role restriction was documented on generate or approve — resolved with the user 2026-09-01: both are admin-only (`canManageReports`), same class of action as Calculations (VVB-facing compliance artifact); everyone can still view.
+
+**Correction, 2026-09-02**: the original writeup here claimed report generation was independent of Phase 6 Calculations. That was wrong — it was based on a successful test against a project that, unknown at the time, already had a calculation from earlier Phase 6 testing. Confirmed against a real empty project on the production deployment: `POST /projects/{id}/reports` 500s with `"Project {id} has no calculation. Run a calculation before generating a monitoring report - Section 3 reports the parameters that calculation resolved."` A calculation must exist for the project before a report can be generated. Fixed 2026-09-02: `ReportsTab.tsx` now checks `useCalculations(projectId)` and disables "Generate report" with an inline explanation when none exist yet, instead of only surfacing the raw backend error after the fact.
 
 Three endpoints were undocumented (`additionalProperties: true`) and confirmed directly against the live backend rather than guessed:
 - `GET /projects/{id}/reports` → `{items: [...], total, skip, limit}` — a third distinct pagination shape in this app, alongside `{data, meta}` (most list endpoints) and `{calculations, total_count, limit, offset}` (Calculations). Each item is a full `ReportResponse`, unlike Calculations' flatter list-row shape — no repeat of that trap.
@@ -483,12 +492,14 @@ Also discovered directly against the backend while testing: **survey-based monit
 - `lib/api/reports.ts` — `generateReport`, `listReports`, `getReport`, `getReportHtml`, `downloadReportPdf` (blob), `approveReport`.
 - `hooks/useReport.ts` — `useReports`/`useReport`/`useGenerateReport`/`useApproveReport`. HTML preview and PDF download are plain async calls, not TanStack Query state — a preview-on-demand and a download aren't "data to keep fresh."
 - `components/reports/GenerateReportDialog.tsx` — period dates + usage rate method + conditionally-required customer support level (`superRefine`, same pattern as Calculations' `usageRateFormSchema`).
-- `components/reports/ReportsTab.tsx` + `ReportsTable.tsx` — the Project detail "Reports" tab, replacing the stub.
+- `components/reports/ReportsTab.tsx` + `ReportsTable.tsx` — the Project detail "Reports" tab, replacing the stub. **Updated 2026-09-02**: checks `useCalculations(projectId)` and disables "Generate report" with an inline explanation when the project has no calculation yet — see the correction note in the [§6 Reports writeup](#6-full-backend-api-surface).
 - `components/reports/ReportDetailClient.tsx` + `app/dashboard/projects/[id]/reports/[reportId]/page.tsx` — stat cards, an HTML preview iframe, a PDF download button, an approval-log history table, and (admin-only, `status === "DRAFT"` only) a "Record VVB decision" action via `ApproveReportDialog.tsx`.
 - `lib/auth/permissions.ts#canManageReports` — admin-only.
 - `components/layout/Breadcrumb.tsx` — added `"reports"` to `NON_NAVIGABLE_SEGMENTS` (same reasoning as `households`/`calculations`).
 
 **Not done / explicitly deferred**: `POST /projects/bulk-generate/reports` (schema doesn't match live backend behavior, see §6) and report `ARCHIVED` status transitions (no endpoint exposes triggering it).
+
+**Bug found post-ship, 2026-09-02**: a user reported "report data doesn't populate." Root cause: report generation actually **requires an existing Calculation for the project** — the original research incorrectly concluded otherwise (see the correction in [§6](#6-full-backend-api-surface)), because the project tested at the time already had a leftover calculation from Phase 6 testing. Reproduced cleanly on a fresh project with zero calculations on the production deployment (`https://mvp-server-production-de2d.up.railway.app`, a different backend than the local dev server used for the rest of this session): `POST /projects/{id}/reports` 500s with a clear message once a calculation exists first, it works exactly as documented. The dialog's own error handling was already correct (the message would have shown), but nothing warned the user before they hit it — fixed by disabling the button with an explanation instead.
 
 ---
 

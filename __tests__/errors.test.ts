@@ -64,4 +64,23 @@ describe("getErrorMessage", () => {
     error.response!.data = { detail: [{ loc: ["body", "file_hash"], msg: "String should have at least 64 characters", type: "string_too_short" }] };
     expect(getErrorMessage(error)).toBe("String should have at least 64 characters");
   });
+
+  it("surfaces this backend's REQUEST_VALIDATION_ERROR {error: {errors: [...]}} shape, stripping the 'body → ' prefix", () => {
+    const error = axiosErrorWithStatus(422);
+    error.response!.data = {
+      error: {
+        code: "REQUEST_VALIDATION_ERROR",
+        errors: [
+          { field: "body → survey_date", issue: "Value error, Survey date cannot be in the future" },
+          {
+            field: "body → meals_on_project_stove",
+            issue: "Input should be a valid integer, got a number with a fractional part",
+          },
+        ],
+      },
+    };
+    expect(getErrorMessage(error)).toBe(
+      "survey_date: Value error, Survey date cannot be in the future; meals_on_project_stove: Input should be a valid integer, got a number with a fractional part"
+    );
+  });
 });

@@ -3,10 +3,15 @@ import { ReportsTab } from "@/components/reports/ReportsTab";
 import type { Report } from "@/lib/types/report";
 
 const mockUseReports = jest.fn();
+const mockUseCalculations = jest.fn();
 
 jest.mock("@/hooks/useReport", () => ({
   useReports: () => mockUseReports(),
   useGenerateReport: () => ({ mutateAsync: jest.fn(), isPending: false }),
+}));
+
+jest.mock("@/hooks/useCalculation", () => ({
+  useCalculations: () => mockUseCalculations(),
 }));
 
 const report: Report = {
@@ -28,6 +33,12 @@ const report: Report = {
   parameters_count: 12,
   approval_logs: [],
 };
+
+beforeEach(() => {
+  // Default: a calculation already exists, so "Generate report" is enabled
+  // in every test that doesn't care about this specifically.
+  mockUseCalculations.mockReturnValue({ data: [{ calculation_id: "c1" }], isLoading: false });
+});
 
 describe("ReportsTab", () => {
   it("shows an empty state and no generate button for a non-managing viewer", () => {
@@ -64,5 +75,14 @@ describe("ReportsTab", () => {
     render(<ReportsTab projectId="p1" canManage={false} />);
 
     expect(screen.getByText(/failed to load reports/i)).toBeInTheDocument();
+  });
+
+  it("disables Generate report and warns when the project has no calculation yet", () => {
+    mockUseReports.mockReturnValue({ data: [], isLoading: false, isError: false });
+    mockUseCalculations.mockReturnValue({ data: [], isLoading: false });
+    render(<ReportsTab projectId="p1" canManage />);
+
+    expect(screen.getByRole("button", { name: /generate report/i })).toBeDisabled();
+    expect(screen.getByText(/run a calculation for this project first/i)).toBeInTheDocument();
   });
 });

@@ -4,6 +4,7 @@ import { DashboardStats } from "@/components/dashboard/DashboardStats";
 const mockUseSession = jest.fn();
 const mockUseProjects = jest.fn();
 const mockUseUsers = jest.fn();
+const mockUseReportsCount = jest.fn();
 
 jest.mock("next-auth/react", () => ({
   useSession: () => mockUseSession(),
@@ -16,6 +17,14 @@ jest.mock("@/hooks/useProjects", () => ({
 jest.mock("@/hooks/useUsers", () => ({
   useUsers: () => mockUseUsers(),
 }));
+
+jest.mock("@/hooks/useReport", () => ({
+  useReportsCount: (...args: unknown[]) => mockUseReportsCount(...args),
+}));
+
+beforeEach(() => {
+  mockUseReportsCount.mockReturnValue({ count: 5, isLoading: false, isError: false });
+});
 
 describe("DashboardStats", () => {
   it("computes active project count and total user count for an admin", () => {
@@ -53,7 +62,8 @@ describe("DashboardStats", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
     // 3 total users
     expect(screen.getByText("3")).toBeInTheDocument();
-    // Reports generated has no backing endpoint yet — static placeholder
+    // 5 reports generated, summed across the org's projects
+    expect(screen.getByText("5")).toBeInTheDocument();
     expect(screen.getByText("Reports generated")).toBeInTheDocument();
   });
 
@@ -85,6 +95,7 @@ describe("DashboardStats", () => {
       isLoading: false,
       isError: true,
     });
+    mockUseReportsCount.mockReturnValue({ count: 0, isLoading: false, isError: true });
 
     render(<DashboardStats />);
 

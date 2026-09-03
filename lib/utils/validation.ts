@@ -26,6 +26,18 @@ export const optionalNumericString = z
   .optional()
   .refine((v) => !v || !Number.isNaN(Number(v)), "Must be a number");
 
+// For fields the backend types as `integer` (e.g. a meal count) — a
+// fractional value here 422s server-side with "Input should be a valid
+// integer, got a number with a fractional part", so catch it client-side
+// with a clearer message instead.
+export const optionalNonNegativeIntegerString = z
+  .string()
+  .optional()
+  .refine(
+    (v) => !v || (!Number.isNaN(Number(v)) && Number(v) >= 0 && Number.isInteger(Number(v))),
+    "Must be a whole number, 0 or more"
+  );
+
 export const loginSchema = z.object({
   email: z.string().email("Enter a valid email address"),
   password: z.string().min(1, "Password is required"),

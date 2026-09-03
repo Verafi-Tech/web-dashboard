@@ -53,6 +53,37 @@ describe("SurveyFormDialog", () => {
     expect(mockCreateMutateAsync).not.toHaveBeenCalled();
   });
 
+  it("rejects a survey date in the future (matches a live backend 422)", async () => {
+    render(
+      <SurveyFormDialog open onOpenChange={jest.fn()} householdId="h1" />
+    );
+
+    fireEvent.change(screen.getByLabelText(/survey date/i), {
+      target: { value: "2099-01-01" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /record survey/i }));
+
+    expect(await screen.findByText(/cannot be in the future/i)).toBeInTheDocument();
+    expect(mockCreateMutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("rejects a fractional meal count (backend types it as an integer)", async () => {
+    render(
+      <SurveyFormDialog open onOpenChange={jest.fn()} householdId="h1" />
+    );
+
+    fireEvent.change(screen.getByLabelText(/survey date/i), {
+      target: { value: "2026-03-01" },
+    });
+    fireEvent.change(screen.getByLabelText(/meals on project stove/i), {
+      target: { value: "2.5" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /record survey/i }));
+
+    expect(await screen.findByText(/must be a whole number/i)).toBeInTheDocument();
+    expect(mockCreateMutateAsync).not.toHaveBeenCalled();
+  });
+
   it("submits a new survey with default booleans and converted numeric fields", async () => {
     // Base UI's Switch dispatches a synthetic pointer event on click that
     // jsdom doesn't implement (no PointerEvent constructor) — the same gap

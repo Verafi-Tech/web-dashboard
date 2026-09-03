@@ -18,18 +18,28 @@ import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/common/FileUpload";
 import { useCreateSurvey, useUpdateSurvey } from "@/hooks/useSurvey";
 import { getErrorMessage } from "@/lib/utils/errors";
-import { toOptionalNumber, optionalNonNegativeString } from "@/lib/utils/validation";
+import {
+  toOptionalNumber,
+  optionalNonNegativeString,
+  optionalNonNegativeIntegerString,
+} from "@/lib/utils/validation";
 import type { Survey } from "@/lib/types/survey";
 
 const surveyFormSchema = z.object({
-  survey_date: z.string().min(1, "Survey date is required"),
+  survey_date: z
+    .string()
+    .min(1, "Survey date is required")
+    // Confirmed against the live backend: it rejects a future survey_date
+    // with a 422. String comparison is safe here since both sides are
+    // YYYY-MM-DD (from a <input type="date">, and toISOString().slice(0,10)).
+    .refine((v) => v <= new Date().toISOString().slice(0, 10), "Cannot be in the future"),
   stove_in_use: z.boolean(),
   stove_used_regularly: z.boolean(),
   stove_in_good_condition: z.boolean(),
   old_stove_still_used: z.boolean(),
   primary_fuel_used: z.string().max(100).optional(),
-  meals_on_project_stove: optionalNonNegativeString,
-  meals_on_baseline_stove: optionalNonNegativeString,
+  meals_on_project_stove: optionalNonNegativeIntegerString,
+  meals_on_baseline_stove: optionalNonNegativeIntegerString,
   firewood_kg_per_week: optionalNonNegativeString,
   notes: z.string().max(5000).optional(),
 });
@@ -212,7 +222,7 @@ export function SurveyFormDialog({
               <Label htmlFor="survey-meals-project" className="text-[10.5px]">
                 Meals on project stove
               </Label>
-              <Input id="survey-meals-project" type="number" min={0} {...register("meals_on_project_stove")} />
+              <Input id="survey-meals-project" type="number" min={0} step={1} {...register("meals_on_project_stove")} />
               {errors.meals_on_project_stove && (
                 <p className="text-xs text-destructive">
                   {errors.meals_on_project_stove.message}
@@ -223,7 +233,7 @@ export function SurveyFormDialog({
               <Label htmlFor="survey-meals-baseline" className="text-[10.5px]">
                 Meals on baseline stove
               </Label>
-              <Input id="survey-meals-baseline" type="number" min={0} {...register("meals_on_baseline_stove")} />
+              <Input id="survey-meals-baseline" type="number" min={0} step={1} {...register("meals_on_baseline_stove")} />
               {errors.meals_on_baseline_stove && (
                 <p className="text-xs text-destructive">
                   {errors.meals_on_baseline_stove.message}
